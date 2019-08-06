@@ -27,7 +27,7 @@ from __future__ import absolute_import, division, print_function
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 import sys
-sys.path.append('../DeepMoon')
+sys.path.append('../DeepCrater')
 import input_data_gen as igen
 import time
 
@@ -37,18 +37,18 @@ import time
 use_mpi4py = False
 
 # Source image path.
-source_image_path = "../deep_moon_data/Silburt/LunarLROLrocKaguya_118mperpix.png"
+source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
 
 # LROC crater catalog csv path.
-lroc_csv_path = "../DeepMoon/catalogues/LROCCraters.csv"
+lroc_csv_path = "../DeepCrater/catalogues/LROCCraters.csv"
 
 # Head et al. catalog csv path.
-head_csv_path = "../DeepMoon/catalogues/HeadCraters.csv"
+head_csv_path = "../DeepCrater/catalogues/HeadCraters.csv"
 
 # Output filepath and file header.  Eg. if outhead = "./input_data/train",
 # files will have extension "./out/train_inputs.hdf5" and
 # "./out/train_targets.hdf5"
-outhead = "../deep_moon_data/my_test_data/train"
+outhead = "../data/my_test_data/train"
 
 # Number of images to make (if using MPI4py, number of image per thread to
 # make).
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
 
 
-source_image_path = "../deep_moon_data/LunarLROLrocKaguya_118mperpix.png"
+source_image_path = "../data/LunarLROLrocKaguya_118mperpix.png"
 import os.path
 if os.path.exists(source_image_path):
     print("exists")
