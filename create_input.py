@@ -75,7 +75,7 @@ source_cdim = [-180., 180., -60., 60.]
 
 # [Min long, max long, min lat, max lat] dimensions of the region of the source
 # to use when randomly cropping.  Used to distinguish training from test sets.
-sub_cdim = [-180., 180., -60., 60.]
+sub_cdim = [-18., 18., -6., 6.]
 
 # Minimum pixel diameter of craters to include in in the target.
 minpix = 1.
