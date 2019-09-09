@@ -27,7 +27,7 @@ from __future__ import absolute_import, division, print_function
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 import sys
-sys.path.append('../DeepCrater')
+#sys.path.append('../DeepMoon')
 import input_data_gen as igen
 import time
 
@@ -52,7 +52,7 @@ outhead = "../data/my_test_data/train"
 
 # Number of images to make (if using MPI4py, number of image per thread to
 # make).
-amt = 300
+amt = 30
 
 # Range of image widths, in pixels, to crop from source image (input images
 # will be scaled down to ilen). For Orthogonal projection, larger images are
