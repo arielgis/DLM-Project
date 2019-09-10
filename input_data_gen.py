@@ -719,7 +719,60 @@ def getRandomCrop(rs, size0, size1):
     assert rawlen < size1, "rawlen({}) < size1({})".format(rawlen , size1)
     xc = np.random.randint(0, size0 - rawlen)
     yc = np.random.randint(0, size1 - rawlen)
-    return [rawlen, xc, yc]
+    box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
+    return box
+
+def update_sds_box(imgs_h5_box, img_number, box):
+    sds_box = imgs_h5_box.create_dataset(img_number, (4,), dtype='int32')
+    sds_box[...] = box
+    
+def update_sds_llbd(imgs_h5_llbd, img_number, llbd):
+    sds_llbd = imgs_h5_llbd.create_dataset(img_number, (4,), dtype='float')
+    sds_llbd[...] = llbd
+    
+def update_sds_dc(imgs_h5_dc, img_number, distortion_coefficient):
+    sds_dc = imgs_h5_dc.create_dataset(img_number, (1,), dtype='float')
+    sds_dc[...] = np.array([distortion_coefficient])    
+    
+def update_sds_cll(imgs_h5_cll, img_number, clonglat_xy):
+    sds_cll = imgs_h5_cll.create_dataset(img_number, (2,), dtype='float')
+    sds_cll[...] = clonglat_xy.loc[:, ['x', 'y']].as_matrix().ravel()
+        
+def output_to_file(img_number, i, imgs_h5_inputs, imgo_arr, imgs_h5_tgts, mask, imgs_h5_box, box, imgs_h5_llbd, llbd, 
+                       imgs_h5_dc,  distortion_coefficient, imgs_h5_cll, clonglat_xy, craters_h5, ctr_xy, imgs_h5):
+    imgs_h5_inputs[i, ...] = imgo_arr
+    imgs_h5_tgts[i, ...] = mask
+    update_sds_box(imgs_h5_box, img_number, box)
+    update_sds_llbd(imgs_h5_llbd, img_number, llbd)
+    update_sds_dc(imgs_h5_dc, img_number, distortion_coefficient)
+    update_sds_cll(imgs_h5_cll, img_number, clonglat_xy)
+    craters_h5[img_number] = ctr_xy
+    imgs_h5.flush()
+    craters_h5.flush()
+    
+
+def init_files(outhead, amt, ilen, tglen):
+    imgs_h5 = h5py.File(outhead + '_images.hdf5', 'w')
+    imgs_h5_inputs = imgs_h5.create_dataset("input_images", (amt, ilen, ilen),
+                                            dtype='uint8')
+    imgs_h5_inputs.attrs['definition'] = "Input image dataset."
+    imgs_h5_tgts = imgs_h5.create_dataset("target_masks", (amt, tglen, tglen),
+                                          dtype='float32')
+    imgs_h5_tgts.attrs['definition'] = "Target mask dataset."
+    imgs_h5_llbd = imgs_h5.create_group("longlat_bounds")
+    imgs_h5_llbd.attrs['definition'] = ("(long min, long max, lat min, "
+                                        "lat max) of the cropped image.")
+    imgs_h5_box = imgs_h5.create_group("pix_bounds")
+    imgs_h5_box.attrs['definition'] = ("Pixel bounds of the Global DEM region"
+                                       " that was cropped for the image.")
+    imgs_h5_dc = imgs_h5.create_group("pix_distortion_coefficient")
+    imgs_h5_dc.attrs['definition'] = ("Distortion coefficient due to "
+                                      "projection transformation.")
+    imgs_h5_cll = imgs_h5.create_group("cll_xy")
+    imgs_h5_cll.attrs['definition'] = ("(x, y) pixel coordinates of the "
+                                       "central long / lat.")
+    craters_h5 = pd.HDFStore(outhead + '_craters.hdf5', 'w')
+    return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
 def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
@@ -809,26 +862,7 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
             return np.random.randint(rawlen_range[0], rawlen_range[1] + 1)
 
     # Initialize output hdf5s.
-    imgs_h5 = h5py.File(outhead + '_images.hdf5', 'w')
-    imgs_h5_inputs = imgs_h5.create_dataset("input_images", (amt, ilen, ilen),
-                                            dtype='uint8')
-    imgs_h5_inputs.attrs['definition'] = "Input image dataset."
-    imgs_h5_tgts = imgs_h5.create_dataset("target_masks", (amt, tglen, tglen),
-                                          dtype='float32')
-    imgs_h5_tgts.attrs['definition'] = "Target mask dataset."
-    imgs_h5_llbd = imgs_h5.create_group("longlat_bounds")
-    imgs_h5_llbd.attrs['definition'] = ("(long min, long max, lat min, "
-                                        "lat max) of the cropped image.")
-    imgs_h5_box = imgs_h5.create_group("pix_bounds")
-    imgs_h5_box.attrs['definition'] = ("Pixel bounds of the Global DEM region"
-                                       " that was cropped for the image.")
-    imgs_h5_dc = imgs_h5.create_group("pix_distortion_coefficient")
-    imgs_h5_dc.attrs['definition'] = ("Distortion coefficient due to "
-                                      "projection transformation.")
-    imgs_h5_cll = imgs_h5.create_group("cll_xy")
-    imgs_h5_cll.attrs['definition'] = ("(x, y) pixel coordinates of the "
-                                       "central long / lat.")
-    craters_h5 = pd.HDFStore(outhead + '_craters.hdf5', 'w')
+    [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5] = init_files(outhead, amt, ilen, tglen)
 
     # Zero-padding for hdf5 keys.
     zeropad = int(np.log10(amt)) + 1
@@ -841,9 +875,9 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
             print("Generating {0}".format(img_number))
 
         # Determine image size to crop.
-        [rawlen, xc, yc] = getRandomCrop(random_sampler, img.size[0], img.size[1])
-        print("{},{},{}".format(rawlen, xc, yc))
-        box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
+        box = getRandomCrop(random_sampler, img.size[0], img.size[1])
+        print("box is {}".format(box))
+       
 
         # Load necessary because crop may be a lazy operation; im.load() should
         # copy it.  See <http://pillow.readthedocs.io/en/3.1.x/
@@ -889,22 +923,13 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
                          ringwidth=ringwidth, truncate=truncate)
 
         # Output everything to file.
-        imgs_h5_inputs[i, ...] = imgo_arr
-        imgs_h5_tgts[i, ...] = mask
-
-        sds_box = imgs_h5_box.create_dataset(img_number, (4,), dtype='int32')
-        sds_box[...] = box
-        sds_llbd = imgs_h5_llbd.create_dataset(img_number, (4,), dtype='float')
-        sds_llbd[...] = llbd
-        sds_dc = imgs_h5_dc.create_dataset(img_number, (1,), dtype='float')
-        sds_dc[...] = np.array([distortion_coefficient])
-        sds_cll = imgs_h5_cll.create_dataset(img_number, (2,), dtype='float')
-        sds_cll[...] = clonglat_xy.loc[:, ['x', 'y']].as_matrix().ravel()
-
-        craters_h5[img_number] = ctr_xy
-
-        imgs_h5.flush()
-        craters_h5.flush()
-
+        output_to_file(img_number, i, imgs_h5_inputs, imgo_arr, imgs_h5_tgts, mask, imgs_h5_box, box, imgs_h5_llbd, llbd, 
+                       imgs_h5_dc,  distortion_coefficient, imgs_h5_cll, clonglat_xy, craters_h5, ctr_xy, imgs_h5)       
     imgs_h5.close()
     craters_h5.close()
+    
+
+    
+
+        
+        

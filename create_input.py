@@ -122,20 +122,20 @@ if __name__ == '__main__':
         img = igen.InitialImageCut(img, source_cdim, sub_cdim)
     # This always works, since sub_cdim < source_cdim.
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
-
+    
     # Generate input images.
     igen.GenDataset(img, craters, outhead, rawlen_range=rawlen_range,
                     rawlen_dist=rawlen_dist, ilen=ilen, cdim=sub_cdim,
                     arad=R_km, minpix=minpix, tglen=tglen, binary=True,
                     rings=True, ringwidth=ringwidth, truncate=truncate,
                     amt=amt, istart=istart, verbose=verbose)
-
+    #print("amt is {}".format(amt))
     elapsed_time = time.time() - start_time
     if verbose:
         print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
 
 
-source_image_path = "../data/LunarLROLrocKaguya_118mperpix.png"
+source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
 import os.path
 if os.path.exists(source_image_path):
     print("exists")
