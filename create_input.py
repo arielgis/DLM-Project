@@ -123,7 +123,7 @@ if __name__ == '__main__':
         box_list.append(box)
         
     # Generate input images.
-    igen.GenDataset(box_list, img, craters, outhead, cdim=sub_cdim)
+    igen.GenDataset(box_list, img, craters, outhead, R_km, cdim=sub_cdim)
     
     #print("amt is {}".format(amt))
     elapsed_time = time.time() - start_time

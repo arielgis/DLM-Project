@@ -763,7 +763,7 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(box_list, img, craters, outhead, cdim=[-180., 180., -60., 60.], arad):
+def GenDataset(box_list, img, craters, outhead, arad, cdim=[-180., 180., -60., 60.]):
     
     truncate = True
     istart=0
