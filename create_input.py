@@ -30,6 +30,7 @@ import sys
 #sys.path.append('../DeepMoon')
 import input_data_gen as igen
 import time
+import numpy as np
 
 ########## Global Variables ##########
 
@@ -60,16 +61,6 @@ amt = 30
 # have minimal distortion, and including the largest craters in the image.
 rawlen_range = [500, 6500]
 
-# Distribution to sample from rawlen_range - "uniform" for uniform, and "log"
-# for loguniform.
-rawlen_dist = 'log'
-
-# Size of input images.
-ilen = 256
-
-# Size of target images.
-tglen = 256
-
 # [Min long, max long, min lat, max lat] dimensions of source image.
 source_cdim = [-180., 180., -60., 60.]
 
@@ -77,24 +68,25 @@ source_cdim = [-180., 180., -60., 60.]
 # to use when randomly cropping.  Used to distinguish training from test sets.
 sub_cdim = [-18., 18., -6., 6.]
 
-# Minimum pixel diameter of craters to include in in the target.
-minpix = 1.
-
 # Radius of the world in km (1737.4 for Moon).
 R_km = 1737.4
 
-### Target mask arguments. ###
-
-# If True, truncate mask where image has padding.
-truncate = True
-
-# If rings = True, thickness of ring in pixels.
-ringwidth = 1
-
-# If True, script prints out the image it's currently working on.
-verbose = True
-
 ########## Script ##########
+
+def getRandomCrop(size0, size1, rawlen_range):
+    # Determine image size to crop.
+    rawlen_min = np.log10(rawlen_range[0])
+    rawlen_max = np.log10(rawlen_range[1])
+    rawlen = float('inf')
+    # this is log dist
+    while rawlen >= size0 or rawlen >= size1:
+        rawlen = int(10**np.random.uniform(rawlen_min, rawlen_max))  
+    assert rawlen < size0, "rawlen({}) < size0({})".format(rawlen , size0)
+    assert rawlen < size1, "rawlen({}) < size1({})".format(rawlen , size1)
+    xc = np.random.randint(0, size0 - rawlen)
+    yc = np.random.randint(0, size1 - rawlen)
+    box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
+    return box
 
 if __name__ == '__main__':
 
@@ -123,16 +115,19 @@ if __name__ == '__main__':
     # This always works, since sub_cdim < source_cdim.
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
     
+    #box = getRandomCrop(img.size[0], img.size[1], rawlen_range)
+    #print("box is {}".format(box))
+    box_list = []
+    for i in range(amt):
+        box = getRandomCrop(img.size[0], img.size[1], rawlen_range)        
+        box_list.append(box)
+        
     # Generate input images.
-    igen.GenDataset(img, craters, outhead, rawlen_range=rawlen_range,
-                    rawlen_dist=rawlen_dist, ilen=ilen, cdim=sub_cdim,
-                    arad=R_km, minpix=minpix, tglen=tglen, binary=True,
-                    rings=True, ringwidth=ringwidth, truncate=truncate,
-                    amt=amt, istart=istart, verbose=verbose)
+    igen.GenDataset(box_list, img, craters, outhead, cdim=sub_cdim)
+    
     #print("amt is {}".format(amt))
     elapsed_time = time.time() - start_time
-    if verbose:
-        print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
+    print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
 
 
 source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"

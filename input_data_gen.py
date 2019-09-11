@@ -710,18 +710,6 @@ def InitialImageCut(img, cdim, newcdim):
 
     return img
 
-def getRandomCrop(rs, size0, size1):
-    # Determine image size to crop.
-    rawlen = float('inf')
-    while rawlen >= size0 or rawlen >= size1:
-        rawlen = rs()
-    assert rawlen < size0, "rawlen({}) < size0({})".format(rawlen , size0)
-    assert rawlen < size1, "rawlen({}) < size1({})".format(rawlen , size1)
-    xc = np.random.randint(0, size0 - rawlen)
-    yc = np.random.randint(0, size1 - rawlen)
-    box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
-    return box
-
 def update_sds_box(imgs_h5_box, img_number, box):
     sds_box = imgs_h5_box.create_dataset(img_number, (4,), dtype='int32')
     sds_box[...] = box
@@ -775,91 +763,23 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
-               rawlen_dist='log', ilen=256, cdim=[-180., 180., -60., 60.],
-               arad=1737.4, minpix=0, tglen=256, binary=True, rings=True,
-               ringwidth=1, truncate=True, amt=100, istart=0, seed=None,
-               verbose=False):
-    """Generates random dataset from a global DEM and crater catalogue.
-
-    The function randomly samples small images from a global digital elevation
-    map (DEM) that uses a Plate Carree projection, and converts the small
-    images to Orthographic projection.  Pixel coordinates and radii of craters
-    from the catalogue that fall within each image are placed in a
-    corresponding Pandas dataframe.  Images and dataframes are saved to disk in
-    hdf5 format.
-
-    Parameters
-    ----------
-    img : PIL.Image.Image
-        Source image.
-    craters : pandas.DataFrame
-        Crater catalogue .csv.
-    outhead : str
-        Filepath and file prefix of the image and crater table hdf5 files.
-    rawlen_range : list-like, optional
-        Lower and upper bounds of raw image widths, in pixels, to crop from
-        source.  To always crop the same sized image, set lower bound to the
-        same value as the upper.  Default is [300, 4000].
-    rawlen_dist : 'uniform' or 'log'
-        Distribution from which to randomly sample image widths.  'uniform' is
-        uniform sampling, and 'log' is loguniform sampling.
-    ilen : int, optional
-        Input image width, in pixels.  Cropped images will be downsampled to
-        this size.  Default is 256.
-    cdim : list-like, optional
-        Coordinate limits (x_min, x_max, y_min, y_max) of image.  Default is
-        LRO-Kaguya's [-180., 180., -60., 60.].
-    arad : float. optional
-        World radius in km.  Defaults to Moon radius (1737.4 km).
-    minpix : int, optional
-        Minimum crater diameter in pixels to be included in crater list.
-        Useful when the smallest craters in the catalogue are smaller than 1
-        pixel in diameter.
-    tglen : int, optional
-        Target image width, in pixels.
-    binary : bool, optional
-        If True, returns a binary image of crater masks.
-    rings : bool, optional
-        If True, mask uses hollow rings rather than filled circles.
-    ringwidth : int, optional
-        If rings is True, ringwidth sets the width (dr) of the ring.
-    truncate : bool
-        If True, truncate mask where image truncates.
-    amt : int, optional
-        Number of images to produce.  100 by default.
-    istart : int
-        Output file starting number, when creating datasets spanning multiple
-        files.
-    seed : int or None
-        np.random.seed input (for testing purposes).
-    verbose : bool
-        If True, prints out number of image being generated.
-    """
-
-    # just in case we ever make this user-selectable...
+def GenDataset(box_list, img, craters, outhead, cdim=[-180., 180., -60., 60.], arad):
+    
+    truncate = True
+    istart=0
+    ringwidth = 1
+    rings=True
+    binary=True    
+    minpix = 1.
+    tglen = 256
+    ilen = 256
+    amt = len(box_list)
     origin = "upper"
-
-    # Seed random number generator.
-    np.random.seed(seed)
 
     # Get craters.
     AddPlateCarree_XY(craters, list(img.size), cdim=cdim, origin=origin)
-
     iglobe = ccrs.Globe(semimajor_axis=arad*1000., semiminor_axis=arad*1000.,
                         ellipse=None)
-
-    # Create random sampler (either uniform or loguniform).
-    if rawlen_dist == 'log':
-        rawlen_min = np.log10(rawlen_range[0])
-        rawlen_max = np.log10(rawlen_range[1])
-
-        def random_sampler():
-            return int(10**np.random.uniform(rawlen_min, rawlen_max))
-    else:
-
-        def random_sampler():
-            return np.random.randint(rawlen_range[0], rawlen_range[1] + 1)
 
     # Initialize output hdf5s.
     [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5] = init_files(outhead, amt, ilen, tglen)
@@ -870,13 +790,11 @@ def GenDataset(img, craters, outhead, rawlen_range=[1000, 2000],
     for i in range(amt):
 
         # Current image number.
-        img_number = "img_{i:0{zp}d}".format(i=istart + i, zp=zeropad)
-        if verbose:
-            print("Generating {0}".format(img_number))
+        img_number = "img_{i:0{zp}d}".format(i=istart + i, zp=zeropad)                
 
         # Determine image size to crop.
-        box = getRandomCrop(random_sampler, img.size[0], img.size[1])
-        print("box is {}".format(box))
+        box = box_list[i]
+        print("Generating {} current crop: ({})".format(img_number,box))     
        
 
         # Load necessary because crop may be a lazy operation; im.load() should
