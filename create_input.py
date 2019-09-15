@@ -3,10 +3,12 @@ from __future__ import absolute_import, division, print_function
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 import sys
+sys.path.append('../DeepMoon')
 import input_data_gen as igen
 import time
 import numpy as np
 import os.path
+import create_data_set
 
 def getRandomCrop(size0, size1, rawlen_range):
     # Determine image size to crop.
@@ -54,7 +56,7 @@ def create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,ou
     img = get_image(source_image_path, sub_cdim ,source_cdim)
     craters = get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km)
     box_list = get_random_crop_list(amt, rawlen_range, img.size)
-    igen.GenDataset(box_list, img, craters, outhead, R_km, cdim=sub_cdim)
+    create_data_set.GenDataset(box_list, img, craters, outhead, R_km, cdim=sub_cdim)
 
 #variables    
 source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
