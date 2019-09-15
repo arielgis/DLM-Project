@@ -1,17 +1,9 @@
 #!/usr/bin/env python
-"""Input Image Dataset Generator Functions
-
-Functions for generating input and target image datasets from Lunar digital
-elevation maps and crater catalogues.
-"""
 #from __future__ import absolute_import, division, print_function
 import numpy as np
 import pandas as pd
 from PIL import Image
 import cartopy.crs as ccrs
-#import cartopy.img_transform as cimg
-#import collections
-#import cv2
 import h5py
 import sys
 sys.path.append('../DeepMoon')
