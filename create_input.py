@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 import sys
-sys.path.append('../DeepMoon')
+sys.path.append('/mnt/disks/disk0/deep_moon_working_dir/DeepMoon')
 import input_data_gen as igen
 import time
 import numpy as np
@@ -24,6 +24,16 @@ def getRandomCrop(size0, size1, rawlen_range):
     yc = np.random.randint(0, size1 - rawlen)
     box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
     return box
+
+def getNonRandomCrops():
+    box_list = []
+    box_list.append(np.array([1, 1, 3000, 3000], dtype='int32'))
+    box_list.append(np.array([1, 1, 2000, 2000], dtype='int32'))
+    box_list.append(np.array([1, 1, 1000, 1000], dtype='int32'))
+    box_list.append(np.array([1, 1, 500, 500], dtype='int32'))
+    box_list.append(np.array([1, 1, 200, 200], dtype='int32'))
+    box_list.append(np.array([1, 1, 100, 100], dtype='int32'))
+    return box_list    
 
 def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
     craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc=lroc_csv_path,
@@ -48,24 +58,21 @@ def get_random_crop_list(n, rawlen_range, img_size):
         box_list.append(box)
     return box_list
 
-def create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,outhead, amt):
-    rawlen_range = [500, 6500]
-    source_cdim = [-180., 180., -60., 60.]
-    sub_cdim = [-18., 18., -6., 6.]
-    R_km = 1737.4
-    img = get_image(source_image_path, sub_cdim ,source_cdim)
-    craters = get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km)
-    box_list = get_random_crop_list(amt, rawlen_range, img.size)
-    create_data_set.GenDataset(box_list, img, craters, outhead, R_km, cdim=sub_cdim)
+def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead):
+    start_time = time.time()
+    create_data_set.GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)
+    #create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,outhead, amt)
+    elapsed_time = time.time() - start_time
+    print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
 
 #variables    
-source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
-lroc_csv_path = "../DeepCrater/catalogues/LROCCraters.csv"
-head_csv_path = "../DeepCrater/catalogues/HeadCraters.csv"
-outhead = "../data/my_test_data/train"
-amt = 30
+#source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
+#lroc_csv_path = "../DeepCrater/catalogues/LROCCraters.csv"
+#head_csv_path = "../DeepCrater/catalogues/HeadCraters.csv"
+#outhead = "../data/my_test_data/train"
+#amt = 30
 
-start_time = time.time()
-create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,outhead, amt)
-elapsed_time = time.time() - start_time
-print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
+#start_time = time.time()
+#create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,outhead, amt)
+#elapsed_time = time.time() - start_time
+#print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
