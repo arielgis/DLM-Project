@@ -23,6 +23,8 @@ outhead = '/mnt/disks/disk0/deep_moon_working_dir/data/test_images_3072/train'
 
 create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead)
 
+df = create_input.create_crop_files_coordinated(box_list, sub_cdim, img)
+df.to_csv (r'{}_pixels.csv'.format(outhead), index = None, header=True)
     
 
         
