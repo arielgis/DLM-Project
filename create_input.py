@@ -207,7 +207,7 @@ def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead):
     elapsed_time = time.time() - start_time
     print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
     
-def create_crop_files_coordinated(box_list, sub_cdim, img):
+def create_crop_files_coordinated(box_list, sub_cdim, img):    
     df = pd.DataFrame(box_list, columns = ['x_start', 'y_start', 'x_end','y_end'])
     long_start_vec = []
     long_end_vec = []
@@ -217,6 +217,8 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
         ix = box[::2]
         iy = box[1::2]
         llong, llat = trf.pix2coord(ix, iy, sub_cdim, list(img.size), origin="upper")
+        print(llong)
+        print(llat)
         long_start_vec.append(llong[0])
         long_end_vec.append(llong[1])
         lat_start_vec.append(llat[0])
@@ -225,6 +227,9 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
     df['long_end'] = long_end_vec
     df['lat_start'] = lat_start_vec
     df['lat_end'] = lat_end_vec
-    return df
+    
+
+
+
 
     
