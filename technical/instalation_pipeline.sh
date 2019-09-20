@@ -9,7 +9,7 @@ echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 pip install h5py
-pip install Keras==2.0.0
+pip install Keras==1.2.2
 pip install numpy
 pip install opencv-python==3.2.0.6
 pip install pandas==0.19.1
