@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from collections import Counter
 import sys
-sys.path.append("/mnt/disks/disk0/deep_moon_working_dir/DeepCrater/utils")
+sys.path.append("../DeepMoon/utils")
 import template_match_target as tmt
 from scipy.spatial import distance
 

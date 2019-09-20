@@ -9,7 +9,7 @@ import os.path
 import cartopy.crs as ccrs
 import h5py
 import pandas as pd
-sys.path.append('/mnt/disks/disk0/deep_moon_working_dir/DeepMoon')
+sys.path.append('../DeepMoon/')
 import input_data_gen as igen
 import utils.transform as trf
 
@@ -227,7 +227,7 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
     df['long_end'] = long_end_vec
     df['lat_start'] = lat_start_vec
     df['lat_end'] = lat_end_vec
-    
+    return df
 
 
 

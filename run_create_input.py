@@ -19,13 +19,9 @@ box_list.append(np.array([2048, 0, 5120, 3072], dtype='int32'))
 box_list.append(np.array([4096, 0, 7168, 3072], dtype='int32'))
 box_list.append(np.array([6144, 0, 9216, 3072], dtype='int32'))
 
-outhead = '/mnt/disks/disk0/deep_moon_working_dir/data/test_images_3072/train'
+outhead = '../data/test_images_3072/train'
 
 create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead)
 
 df = create_input.create_crop_files_coordinated(box_list, sub_cdim, img)
 df.to_csv (r'{}_pixels.csv'.format(outhead), index = None, header=True)
-    
-
-        
-        
