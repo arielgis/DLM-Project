@@ -7,10 +7,11 @@ import os
 #default params
 R_km = 1737.4  
 source_cdim = [-180., 180., -60., 60.]
-source_image_path = "../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
-lroc_csv_path = "../DeepMoon/catalogues/LROCCraters.csv"
-head_csv_path = "../DeepMoon/catalogues/HeadCraters.csv"
+source_image_path = "../../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
 
+deep_moon_path = os.path.abspath("../DeepMoon")
+lroc_csv_path = "{}/catalogues/LROCCraters.csv".format(deep_moon_path)
+head_csv_path = "{}/catalogues/HeadCraters.csv".format(deep_moon_path)
 #tune params
 sub_cdim = [-18., 18., -6., 6.]
 win_size = 1000
@@ -19,7 +20,7 @@ overlap_size = 200
 
     
 
-outhead = '../data/test_ws_{}_ol_{}_{}_{}_{}_{}'.format(win_size,overlap_size, int(sub_cdim[0]), int(sub_cdim[1]), int(sub_cdim[2]), int(sub_cdim[3]))
+outhead = '../../data/test_ws_{}_ol_{}_{}_{}_{}_{}'.format(win_size,overlap_size, int(sub_cdim[0]), int(sub_cdim[1]), int(sub_cdim[2]), int(sub_cdim[3]))
 if os.path.isdir(outhead):
      print('{} already exists data will be rewritten'.format(outhead))
 else:

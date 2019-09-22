@@ -9,9 +9,11 @@ import os.path
 import cartopy.crs as ccrs
 import h5py
 import pandas as pd
-sys.path.append('../DeepMoon/')
-import input_data_gen as igen
-import utils.transform as trf
+#from ..DeepMoon import input_data_gen as igen
+#from ..DeepMoon.utils import transform as trf
+#sys.path.append('../../DeepMoon/')
+#import input_data_gen as igen
+#import utils.transform as trf
 
 
 def update_sds_box(imgs_h5_box, img_number, box):
@@ -68,6 +70,7 @@ def init_files(outhead, amt, ilen, tglen):
 
 
 def GenDataset(box_list, img, craters, outhead, arad, cdim=[-180., 180., -60., 60.]):
+    
     
     truncate = True
     istart=0
@@ -149,34 +152,8 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim=[-180., 180., -60., 6
                        imgs_h5_dc,  distortion_coefficient, imgs_h5_cll, clonglat_xy, craters_h5, ctr_xy, imgs_h5)       
     imgs_h5.close()
     craters_h5.close()
+
     
-
-
-def getRandomCrop(size0, size1, rawlen_range):
-    # Determine image size to crop.
-    rawlen_min = np.log10(rawlen_range[0])
-    rawlen_max = np.log10(rawlen_range[1])
-    rawlen = float('inf')
-    # this is log dist
-    while rawlen >= size0 or rawlen >= size1:
-        rawlen = int(10**np.random.uniform(rawlen_min, rawlen_max))  
-    assert rawlen < size0, "rawlen({}) < size0({})".format(rawlen , size0)
-    assert rawlen < size1, "rawlen({}) < size1({})".format(rawlen , size1)
-    xc = np.random.randint(0, size0 - rawlen)
-    yc = np.random.randint(0, size1 - rawlen)
-    box = np.array([xc, yc, xc + rawlen, yc + rawlen], dtype='int32')
-    return box
-
-def getNonRandomCrops():
-    box_list = []
-    box_list.append(np.array([1, 1, 3000, 3000], dtype='int32'))
-    box_list.append(np.array([1, 1, 2000, 2000], dtype='int32'))
-    box_list.append(np.array([1, 1, 1000, 1000], dtype='int32'))
-    box_list.append(np.array([1, 1, 500, 500], dtype='int32'))
-    box_list.append(np.array([1, 1, 200, 200], dtype='int32'))
-    box_list.append(np.array([1, 1, 100, 100], dtype='int32'))
-    return box_list    
-
 def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
     craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc=lroc_csv_path,
                                                  filehead=head_csv_path)
@@ -200,10 +177,13 @@ def get_random_crop_list(n, rawlen_range, img_size):
         box_list.append(box)
     return box_list
 
-def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead):
+def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead, deepmoon_path):
+    sys.append(deepmoon_path)
+    import input_data_gen as igen
+    import utils.transform as trf
+    
     start_time = time.time()
-    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)
-    #create_cropped_images_set(source_image_path, lroc_csv_path, head_csv_path,outhead, amt)
+    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)    
     elapsed_time = time.time() - start_time
     print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
     
