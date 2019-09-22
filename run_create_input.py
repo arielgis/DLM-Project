@@ -1,5 +1,6 @@
 import sys
 import create_input
+import generate_serial_input
 import numpy as np
 
 R_km = 1737.4  
@@ -10,18 +11,21 @@ lroc_csv_path = "../DeepMoon/catalogues/LROCCraters.csv"
 head_csv_path = "../DeepMoon/catalogues/HeadCraters.csv"
 
 img = create_input.get_image(source_image_path, sub_cdim ,source_cdim)
+print(img.size)
+#craters = create_input.get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km)
 
-craters = create_input.get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km)
+get_crop_list(total_size_vec, win_size, overlap_size)
 
-box_list = []
-box_list.append(np.array([0, 0, 3072, 3072], dtype='int32'))
-box_list.append(np.array([2048, 0, 5120, 3072], dtype='int32'))
-box_list.append(np.array([4096, 0, 7168, 3072], dtype='int32'))
-box_list.append(np.array([6144, 0, 9216, 3072], dtype='int32'))
+#generate_serial_input = generate_serial_input.crop_list()
+#box_list = []
+#box_list.append(np.array([0, 0, 3072, 3072], dtype='int32'))
+#box_list.append(np.array([2048, 0, 5120, 3072], dtype='int32'))
+#box_list.append(np.array([4096, 0, 7168, 3072], dtype='int32'))
+#box_list.append(np.array([6144, 0, 9216, 3072], dtype='int32'))
 
-outhead = '../data/test_images_3072/train'
+#outhead = '../data/test_images_3072/train'
 
-create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead)
+#create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead)
 
-df = create_input.create_crop_files_coordinated(box_list, sub_cdim, img)
-df.to_csv (r'{}_pixels.csv'.format(outhead), index = None, header=True)
+#df = create_input.create_crop_files_coordinated(box_list, sub_cdim, img)
+#df.to_csv (r'{}_pixels.csv'.format(outhead), index = None, header=True)

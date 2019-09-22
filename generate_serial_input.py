@@ -15,13 +15,7 @@ def get_crop_list(total_size_vec, win_size, overlap_size):
     crop_list = []
     for curr_x in x:
         for curr_y in y:
-            crop_list.append([curr_x, curr_y, curr_x + win_size, curr_y + win_size])
-            #print("curr_window = [{} {}]".format(curr_x, curr_y))
-
-get_crop_list([3000,9000], 1000, 200)
-
-
-
-
-
-
+            vec = np.array([curr_x, curr_y, curr_x + win_size, curr_y + win_size], dtype='int32')
+            crop_list.append(vec)
+            print("curr_window = [{} {}]".format(curr_x, curr_y))
+    return crop_list
