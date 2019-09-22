@@ -216,9 +216,7 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
     for box in box_list:
         ix = box[::2]
         iy = box[1::2]
-        llong, llat = trf.pix2coord(ix, iy, sub_cdim, list(img.size), origin="upper")
-        print(llong)
-        print(llat)
+        llong, llat = trf.pix2coord(ix, iy, sub_cdim, list(img.size), origin="upper")        
         long_start_vec.append(llong[0])
         long_end_vec.append(llong[1])
         lat_start_vec.append(llat[0])
