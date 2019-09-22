@@ -2,9 +2,9 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from collections import Counter
-import sys
-sys.path.append("../DeepMoon/utils")
-import template_match_target as tmt
+#import sys
+#sys.path.append("../DeepMoon/utils")
+#import template_match_target as tmt
 from scipy.spatial import distance
 
 def convert_ctrs_to_mask(rows_number, cols_number, ctrs):
@@ -62,10 +62,10 @@ def compare_two_matrices(ref_mat, test_mat):
     true_pos_count = my_dict[(1,1)]
     return [true_neg_count, false_pos_count, false_neg_count,true_pos_count]
 
-def extract_rings_using_model(model, img):
-    pred = model.predict(img)
-    extracted_rings = tmt.template_match_t(pred[0].copy(), minrad=2.)
-    return extracted_rings
+#def extract_rings_using_model(model, img):
+#    pred = model.predict(img)
+#    extracted_rings = tmt.template_match_t(pred[0].copy(), minrad=2.)
+#    return extracted_rings
 
 def smallercirclearea(r1, r2):
     radsmaller = min(r1, r2)
