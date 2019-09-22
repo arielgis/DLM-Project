@@ -6,6 +6,7 @@ import sys
 import time
 import numpy as np
 import os.path
+import os
 import cartopy.crs as ccrs
 import h5py
 import pandas as pd
@@ -14,6 +15,7 @@ import pandas as pd
 #sys.path.append('../../DeepMoon/')
 #import input_data_gen as igen
 #import utils.transform as trf
+print(os.getcwd())
 
 
 def update_sds_box(imgs_h5_box, img_number, box):
@@ -69,7 +71,10 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(box_list, img, craters, outhead, arad, cdim=[-180., 180., -60., 60.]):
+def GenDataset(box_list, img, craters, outhead, arad, deepmoon_path, cdim=[-180., 180., -60., 60.]):
+    sys.path.append(deepmoon_path)
+    import input_data_gen as igen
+    import utils.transform as trf
     
     
     truncate = True
@@ -155,11 +160,15 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim=[-180., 180., -60., 6
 
     
 def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
+    sys.path.append('../../DeepMoon/')
+    import input_data_gen as igen
     craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc=lroc_csv_path,
                                                  filehead=head_csv_path)
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
     return craters 
 def get_image(source_image_path, sub_cdim ,source_cdim):
+    sys.path.append('../../DeepMoon/')
+    import input_data_gen as igen
     # Read source image and crater catalogs.
     assert os.path.exists(source_image_path)
     img = Image.open(source_image_path).convert("L")
@@ -178,16 +187,16 @@ def get_random_crop_list(n, rawlen_range, img_size):
     return box_list
 
 def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead, deepmoon_path):
-    sys.append(deepmoon_path)
-    import input_data_gen as igen
-    import utils.transform as trf
-    
+
+ 
     start_time = time.time()
-    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)    
+    GenDataset(box_list, img, craters, outhead, R_km, deepmoon_path, sub_cdim)    
     elapsed_time = time.time() - start_time
     print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
     
 def create_crop_files_coordinated(box_list, sub_cdim, img):    
+    sys.path.append('../../DeepMoon/')
+    import utils.transform as trf
     df = pd.DataFrame(box_list, columns = ['x_start', 'y_start', 'x_end','y_end'])
     long_start_vec = []
     long_end_vec = []
