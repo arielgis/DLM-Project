@@ -13,7 +13,11 @@ deep_moon_path = os.path.abspath("../../DeepMoon")
 lroc_csv_path = "{}/catalogues/LROCCraters.csv".format(deep_moon_path)
 head_csv_path = "{}/catalogues/HeadCraters.csv".format(deep_moon_path)
 #tune params
-sub_cdim = [-18., 18., -6., 6.]
+min_lon = -63
+max_lon = -45
+min_lat = -18
+max_lat = -6
+sub_cdim = [min_lon, max_lon, min_lat, max_lat]
 
 crop_sizes_set = [[3072, 600], [2000, 400], [1000, 200], [500, 100]]
 #win_size = 1000
@@ -25,7 +29,7 @@ if not os.path.isdir(coordinates_folder):
 
 img = create_input.get_image(source_image_path, sub_cdim ,source_cdim)
 print("images size is {}".format(img.size))
-craters = create_input.get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km)
+craters = create_input.get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km).round(6)
 craters.to_csv (r'{}/craters_table.csv'.format(coordinates_folder), index = None, header=True)
 print(coordinates_folder)
 for crop_size in crop_sizes_set:
