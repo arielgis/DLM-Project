@@ -15,7 +15,7 @@ import pandas as pd
 #sys.path.append('../../DeepMoon/')
 #import input_data_gen as igen
 #import utils.transform as trf
-print(os.getcwd())
+
 
 
 def update_sds_box(imgs_h5_box, img_number, box):
@@ -106,7 +106,7 @@ def GenDataset(box_list, img, craters, outhead, arad, deepmoon_path, cdim=[-180.
 
         # Determine image size to crop.
         box = box_list[i]
-        print("Generating {} current crop: ({})".format(img_number,box))     
+        #print("Generating {} current crop: ({})".format(img_number,box))     
        
 
         # Load necessary because crop may be a lazy operation; im.load() should
