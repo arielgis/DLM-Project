@@ -19,7 +19,7 @@ min_lat = -18
 max_lat = -6
 sub_cdim = [min_lon, max_lon, min_lat, max_lat]
 
-crop_sizes_set = [[3072, 600], [2000, 400], [1000, 200], [500, 100]]
+crop_sizes_set = [[3072, 600], [3072, 1000], [3072,1500],[3072,2000]]]
 #win_size = 1000
 #overlap_size = 300
 
