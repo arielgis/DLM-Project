@@ -2,7 +2,8 @@ import numpy as np
 
 
 def get_overlapping_segments(total_size, win_size, overlap_size):
-    x = list(range(0, total_size - win_size, win_size - overlap_size))
+    x = list(range(0, total_size - win_size +1, win_size - overlap_size))
+    assert x, "total_size = {}, win_size = {}, overlap_size = {}".format(total_size, win_size, overlap_size)
     if x[-1] < total_size - win_size:
         x.append(total_size - win_size)
     return x

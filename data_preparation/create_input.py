@@ -15,7 +15,7 @@ import pandas as pd
 #sys.path.append('../../DeepMoon/')
 #import input_data_gen as igen
 #import utils.transform as trf
-print(os.getcwd())
+
 
 
 def update_sds_box(imgs_h5_box, img_number, box):
@@ -78,7 +78,6 @@ def GenDataset(box_list, img, craters, outhead, arad, deepmoon_path, cdim=[-180.
     
     
     truncate = True
-    istart=0
     ringwidth = 1
     rings=True
     binary=True    
@@ -96,17 +95,15 @@ def GenDataset(box_list, img, craters, outhead, arad, deepmoon_path, cdim=[-180.
     # Initialize output hdf5s.
     [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5] = init_files(outhead, amt, ilen, tglen)
 
-    # Zero-padding for hdf5 keys.
-    zeropad = int(np.log10(amt)) + 1
 
     for i in range(amt):
 
         # Current image number.
-        img_number = "img_{i:0{zp}d}".format(i=istart + i, zp=zeropad)                
+        img_number = "img_{:05d}".format(i)                
 
         # Determine image size to crop.
         box = box_list[i]
-        print("Generating {} current crop: ({})".format(img_number,box))     
+        #print("Generating {} current crop: ({})".format(img_number,box))     
        
 
         # Load necessary because crop may be a lazy operation; im.load() should
