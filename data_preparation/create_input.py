@@ -10,12 +10,9 @@ import os
 import cartopy.crs as ccrs
 import h5py
 import pandas as pd
-#from ..DeepMoon import input_data_gen as igen
-#from ..DeepMoon.utils import transform as trf
-#sys.path.append('../../DeepMoon/')
-#import input_data_gen as igen
-#import utils.transform as trf
-
+sys.path.append('../../DeepMoon')
+import input_data_gen as igen
+import utils.transform as trf
 
 
 def update_sds_box(imgs_h5_box, img_number, box):
@@ -71,10 +68,8 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(box_list, img, craters, outhead, arad, deepmoon_path, cdim=[-180., 180., -60., 60.]):
-    sys.path.append(deepmoon_path)
-    import input_data_gen as igen
-    import utils.transform as trf
+def GenDataset(box_list, img, craters, outhead, arad, cdim):
+    
     
     
     truncate = True
@@ -183,11 +178,9 @@ def get_random_crop_list(n, rawlen_range, img_size):
         box_list.append(box)
     return box_list
 
-def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead, deepmoon_path):
-
- 
+def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead): 
     start_time = time.time()
-    GenDataset(box_list, img, craters, outhead, R_km, deepmoon_path, sub_cdim)    
+    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)    
     elapsed_time = time.time() - start_time
     print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
     
