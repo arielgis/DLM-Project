@@ -2,7 +2,6 @@ import os
 import h5py
 import sys
 import pandas as pd
-from keras.models import load_model
 import score_utils as sc
 import numpy as np
 
