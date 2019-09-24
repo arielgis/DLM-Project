@@ -14,6 +14,36 @@ sys.path.append('../../DeepMoon')
 import input_data_gen as igen
 import utils.transform as trf
 
+# PIL Conversion function: 
+def convert16to8bit_PIL(img):
+    """Transform PIL image of 16-bit to 8-bit"""
+    img16=np.asarray(img)
+    img16vec=np.concatenate(img16)
+
+    #transformation: 
+    min_val = np.min(img16vec)
+    dif = (np.max(img16vec)-min_val)
+    img8 = np.uint8((img16-min_val)/dif*256)
+
+    return Image.fromarray(img8)
+
+def convert32to8bit_PIL(img):
+    """Transform PIL image of 32-bit to 8-bit"""
+    img32=np.asarray(img)
+    img32vec=np.concatenate(img32)
+    
+    img32 = np.asarray(img) # convert to np 2-d array
+    s=img32.shape
+    img32vec = np.concatenate(img32) # convert to np 1-d array
+    img32vec[(img32vec<-1e38)] = np.max(img32vec)+4 # replace missing data with a distinct value, which will be transformed to 0
+    img32 = np.reshape(img32vec,s) # convert to np 2-d array
+
+    #transformation: 
+    min_val = np.min(img32vec)
+    dif = (np.max(img32vec)-min_val)
+    img8 = np.uint8((img32-min_val)/dif*256)
+
+    return Image.fromarray(img8)
 
 def update_sds_box(imgs_h5_box, img_number, box):
     sds_box = imgs_h5_box.create_dataset(img_number, (4,), dtype='int32')
@@ -71,7 +101,6 @@ def init_files(outhead, amt, ilen, tglen):
 def GenDataset(box_list, img, craters, outhead, arad, cdim):
     
     
-    
     truncate = True
     ringwidth = 1
     rings=True
@@ -106,6 +135,7 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim):
         # reference/Image.html>.
         im = img.crop(box)
         im.load()
+        im = convert16to8bit_PIL(im)
 
         # Obtain long/lat bounds for coordinate transform.
         ix = box[::2]
@@ -163,7 +193,8 @@ def get_image(source_image_path, sub_cdim ,source_cdim):
     import input_data_gen as igen
     # Read source image and crater catalogs.
     assert os.path.exists(source_image_path)
-    img = Image.open(source_image_path).convert("L")
+    img = Image.open(source_image_path)#.convert("L")
+#     img = convert16to8bit_PIL(img)
 
     # Sample subset of image.  Co-opt igen.ResampleCraters to remove all
     # craters beyond cdim (either sub or source).
