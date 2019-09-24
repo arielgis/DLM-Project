@@ -78,6 +78,7 @@ def get_detected_craters_from_path(all_craters, f, model):
     arr = np.zeros(n,dtype='bool')
     for i in range(images_count):        
         indices_list = get_matched_craters_indices_in_single_image(ctrs["/img_{:05d}".format(i)],  pred[i].copy(), all_craters)
-        arr[indices_list] = True
+        if len(indices_list) > 0:
+            arr[indices_list] = True        
     return arr
     
