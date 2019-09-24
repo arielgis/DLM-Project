@@ -7,11 +7,11 @@ import os
 #default params
 R_km = 1737.4  
 source_cdim = [-180., 180., -60., 60.]
-source_image_path = "../../data/Silburt/LunarLROLrocKaguya_118mperpix.png"
+source_image_path = "../../data/maps/LunarLROLrocKaguya_118mperpix.png"
 
 deep_moon_path = os.path.abspath("../../DeepMoon")
-lroc_csv_path = "{}/catalogues/LROCCraters.csv".format(deep_moon_path)
-head_csv_path = "{}/catalogues/HeadCraters.csv".format(deep_moon_path)
+lroc_csv_path = "../../data/catalogues/LROCCraters.csv".format(deep_moon_path)
+head_csv_path = "../../data/catalogues/HeadCraters.csv".format(deep_moon_path)
 #tune params
 min_lon = -63
 max_lon = -45
@@ -23,7 +23,7 @@ crop_sizes_set = [[3072, 600], [2000, 400], [1000, 200], [500, 100]]
 #win_size = 1000
 #overlap_size = 300
 
-coordinates_folder = '../../data/test_coordinates_{}_{}_{}_{}'.format( int(sub_cdim[0]), int(sub_cdim[1]), int(sub_cdim[2]), int(sub_cdim[3]))
+coordinates_folder = '../../data/model_input_images/test_coordinates_{}_{}_{}_{}'.format( int(sub_cdim[0]), int(sub_cdim[1]), int(sub_cdim[2]), int(sub_cdim[3]))
 if not os.path.isdir(coordinates_folder):
      os.mkdir(coordinates_folder)
 
@@ -40,7 +40,7 @@ for crop_size in crop_sizes_set:
     outhead = "{}/ws_{}_ol_{}".format(coordinates_folder, win_size, overlap_size)
     if not os.path.isdir(outhead):
         os.mkdir(outhead)
-    create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, "{}/train".format(outhead), deep_moon_path)
+    create_input.create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, "{}/train".format(outhead))
     df = create_input.create_crop_files_coordinated(box_list, sub_cdim, img)
     df.to_csv (r'{}/train_pixels.csv'.format(outhead), index = None, header=True)    
 
