@@ -98,7 +98,7 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(box_list, img, craters, outhead, arad, cdim):
+def GenDataset(box_list, img, craters, outhead, arad, cdim, compression):
     
     
     truncate = True
@@ -135,7 +135,8 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim):
         # reference/Image.html>.
         im = img.crop(box)
         im.load()
-        im = convert16to8bit_PIL(im)
+        if compression=='after':
+            im = convert16to8bit_PIL(im)
 
         # Obtain long/lat bounds for coordinate transform.
         ix = box[::2]
@@ -188,13 +189,15 @@ def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
                                                  filehead=head_csv_path)
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
     return craters 
-def get_image(source_image_path, sub_cdim ,source_cdim):
+
+def get_image(source_image_path, sub_cdim ,source_cdim, compression):
     sys.path.append('../../DeepMoon/')
     import input_data_gen as igen
     # Read source image and crater catalogs.
     assert os.path.exists(source_image_path)
     img = Image.open(source_image_path)#.convert("L")
-#     img = convert16to8bit_PIL(img)
+    if img.mode!='L' and compression=='before':
+        img = convert16to8bit_PIL(img)
 
     # Sample subset of image.  Co-opt igen.ResampleCraters to remove all
     # craters beyond cdim (either sub or source).
@@ -209,11 +212,11 @@ def get_random_crop_list(n, rawlen_range, img_size):
         box_list.append(box)
     return box_list
 
-def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead): 
+def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead, compression): 
     start_time = time.time()
-    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)    
+    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim, compression)    
     elapsed_time = time.time() - start_time
-    print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
+    print("Time elapsed: {0:.1f} sec".format(elapsed_time))
     
 def create_crop_files_coordinated(box_list, sub_cdim, img):    
     sys.path.append('../../DeepMoon/')
