@@ -6,16 +6,15 @@ import os
 
 #default params
 R_km = 1737.4  
-# source_cdim = [-180., 180., -60., 60.]
-# source_image_path = "../../data/maps/LunarLROLrocKaguya_118mperpix.png"
+source_cdim = [-180., 180., -60., 60.]
+source_image_path = "../../data/maps/LunarLROLrocKaguya_118mperpix.png"
+catalog = 'old'
 
-source_cdim = [90., 135., 0., 30.]
+# source_cdim = [90., 135., 0., 30.]
 # os.system('wget -P ../../data/maps http://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/sldem2015/tiles/jp2/sldem2015_512_00n_30n_090_135.jp2')
-source_image_path = "../../data/maps/sldem2015_512_00n_30n_090_135.jp2"
+# source_image_path = "../../data/maps/sldem2015_512_00n_30n_090_135.jp2"
 
 deep_moon_path = os.path.abspath("../../DeepMoon")
-lroc_csv_path = "../../data/catalogues/LROCCraters.csv".format(deep_moon_path)
-head_csv_path = "../../data/catalogues/HeadCraters.csv".format(deep_moon_path)
 #tune params
 min_lon = 108
 max_lon = 126
@@ -33,7 +32,7 @@ if not os.path.isdir(coordinates_folder):
 
 img = create_input.get_image(source_image_path, sub_cdim ,source_cdim)
 print("images size is {}".format(img.size))
-craters = create_input.get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km).round(6)
+craters = create_input.get_craters(catalog, sub_cdim, R_km).round(6)
 craters.to_csv (r'{}/craters_table.csv'.format(coordinates_folder), index = None, header=True)
 print(coordinates_folder)
 for crop_size in crop_sizes_set:

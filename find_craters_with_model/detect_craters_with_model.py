@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 import score_utils as sc
 import numpy as np
+from time import time
 
 sys.path.append('../../DeepMoon/')
 import utils.processing as proc
@@ -41,12 +42,16 @@ def detect_craters_with_model(model, sd_input_images, ctrs):
         
         
 def get_image_craters_data(my_craters):
-    pixel_coordinates = []
-    real_coordinates = []
-    for index, row in my_craters.iterrows():
-        pixel_coordinates.append([int(round(row['x'])), int(round(row['y'])), int(round(row['Diameter (pix)'])/2)])
-        real_coordinates.append([row['Diameter (km)'], row['Lat'],row['Long'],])
-    return [np.array(real_coordinates), pixel_coordinates]
+#     pixel_coordinates = []
+#     real_coordinates = []
+#     for index, row in my_craters.iterrows():
+# #         pixel_coordinates.append([int(round(row['x'])), int(round(row['y'])), int(round(row['Diameter (pix)'])/2)])
+#         pixel_coordinates.append([row['x'], row['y'], row['Diameter (pix)']/2])
+#         real_coordinates.append([row['Diameter (km)'], row['Lat'],row['Long'],])
+#     return [np.array(real_coordinates), pixel_coordinates]
+    pixel_coordinates = pd.concat([my_craters[['x','y']], my_craters['Diameter (pix)']/2], axis=1).values
+    real_coordinates = my_craters[['Diameter (km)','Lat','Long']].values
+    return [real_coordinates, pixel_coordinates]
 
 
 def get_index_of_detected_crater_in_the_list(all_craters, detected_crater):
@@ -58,7 +63,9 @@ def get_index_of_detected_crater_in_the_list(all_craters, detected_crater):
     
         
 def get_matched_craters_indices_in_single_image(my_craters, model_prediction, all_craters):
+    tic = time()
     [real_coordinates, labeled_craters] = get_image_craters_data(my_craters)
+    print(time()-tic)
     predicted = tmt.template_match_t(model_prediction, minrad=2.)
     [match, fn, fp] = sc.match_circle_lists(labeled_craters, predicted,0.1)
     matched_craters = [x[0] for x in match]

@@ -182,11 +182,14 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim, compression):
     craters_h5.close()
 
     
-def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
+def get_craters(catalog,  sub_cdim, R_km):
     sys.path.append('../../DeepMoon/')
     import input_data_gen as igen
-    craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc=lroc_csv_path,
-                                                 filehead=head_csv_path)
+    if catalog=='old':
+        craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc="../../data/catalogues/LROCCraters.csv",
+                                                      filehead="../../data/catalogues/HeadCraters.csv")
+    elif catalog=='new':
+        craters = ReadRobbinsCraterCSV(filename="../../data/catalogues/RobbinsLunarCraters.csv")
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
     return craters 
 
@@ -241,6 +244,27 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
     return df
 
 
+def ReadRobbinsCraterCSV(filename="../../data/catalogues/RobbinsLunarCraters.csv", sortlat=True):
+    """Reads Robbins 2018 <1 km and >1 km diameter crater catalogue.
 
+    Parameters
+    ----------
+    filename : str, optional
+        Filepath and name of the catalog csv file.  Defaults to the one in
+        the current folder.
+    sortlat : bool, optional
+        If `True` (default), order catalogue by latitude.
 
+    Returns
+    -------
+    craters : pandas.DataFrame
+        Craters data frame.
+    """
+    craters = pd.read_csv(filename, header=0,
+                          names=['Lat', 'Long', 'Diameter (km)'])[['Long', 'Lat', 'Diameter (km)']]
+    if sortlat:
+        craters.sort_values(by='Lat', inplace=True)
+        craters.reset_index(inplace=True, drop=True)
+
+    return craters
     
