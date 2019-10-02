@@ -82,7 +82,7 @@ def calcAreaIntersectingCircles(d, rad1, rad2):
     #if the circle centers are the same
     if d == 0:       
         return smallercirclearea(rad1,rad2)
-
+    
     angle1 = (rad1sqr + (d * d) - rad2sqr) / (2 * rad1 * d)
     angle2 = (rad2sqr + (d * d) - rad1sqr) / (2 * rad2 * d)
 

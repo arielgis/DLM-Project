@@ -14,6 +14,36 @@ sys.path.append('../../DeepMoon')
 import input_data_gen as igen
 import utils.transform as trf
 
+# PIL Conversion function: 
+def convert16to8bit_PIL(img):
+    """Transform PIL image of 16-bit to 8-bit"""
+    img16=np.asarray(img)
+    img16vec=np.concatenate(img16)
+
+    #transformation: 
+    min_val = np.min(img16vec)
+    dif = (np.max(img16vec)-min_val)
+    img8 = np.uint8((img16-min_val)/dif*256)
+
+    return Image.fromarray(img8)
+
+def convert32to8bit_PIL(img):
+    """Transform PIL image of 32-bit to 8-bit"""
+    img32=np.asarray(img)
+    img32vec=np.concatenate(img32)
+    
+    img32 = np.asarray(img) # convert to np 2-d array
+    s=img32.shape
+    img32vec = np.concatenate(img32) # convert to np 1-d array
+    img32vec[(img32vec<-1e38)] = np.max(img32vec)+4 # replace missing data with a distinct value, which will be transformed to 0
+    img32 = np.reshape(img32vec,s) # convert to np 2-d array
+
+    #transformation: 
+    min_val = np.min(img32vec)
+    dif = (np.max(img32vec)-min_val)
+    img8 = np.uint8((img32-min_val)/dif*256)
+
+    return Image.fromarray(img8)
 
 def update_sds_box(imgs_h5_box, img_number, box):
     sds_box = imgs_h5_box.create_dataset(img_number, (4,), dtype='int32')
@@ -68,8 +98,7 @@ def init_files(outhead, amt, ilen, tglen):
     return [imgs_h5, imgs_h5_inputs, imgs_h5_tgts, imgs_h5_llbd, imgs_h5_box, imgs_h5_dc, imgs_h5_cll, craters_h5]
 
 
-def GenDataset(box_list, img, craters, outhead, arad, cdim):
-    
+def GenDataset(box_list, img, craters, outhead, arad, cdim, compression):
     
     
     truncate = True
@@ -106,6 +135,8 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim):
         # reference/Image.html>.
         im = img.crop(box)
         im.load()
+        if compression=='after':
+            im = convert16to8bit_PIL(im)
 
         # Obtain long/lat bounds for coordinate transform.
         ix = box[::2]
@@ -151,19 +182,25 @@ def GenDataset(box_list, img, craters, outhead, arad, cdim):
     craters_h5.close()
 
     
-def get_craters(lroc_csv_path, head_csv_path,  sub_cdim, R_km):
+def get_craters(catalog,  sub_cdim, R_km):
     sys.path.append('../../DeepMoon/')
     import input_data_gen as igen
-    craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc=lroc_csv_path,
-                                                 filehead=head_csv_path)
+    if catalog=='old':
+        craters = igen.ReadLROCHeadCombinedCraterCSV(filelroc="../../data/catalogues/LROCCraters.csv",
+                                                      filehead="../../data/catalogues/HeadCraters.csv")
+    elif catalog=='new':
+        craters = ReadRobbinsCraterCSV(filename="../../data/catalogues/RobbinsLunarCraters.csv")
     craters = igen.ResampleCraters(craters, sub_cdim, None, arad=R_km)
     return craters 
-def get_image(source_image_path, sub_cdim ,source_cdim):
+
+def get_image(source_image_path, sub_cdim ,source_cdim, compression):
     sys.path.append('../../DeepMoon/')
     import input_data_gen as igen
     # Read source image and crater catalogs.
     assert os.path.exists(source_image_path)
-    img = Image.open(source_image_path).convert("L")
+    img = Image.open(source_image_path)#.convert("L")
+    if img.mode!='L' and compression=='before':
+        img = convert16to8bit_PIL(img)
 
     # Sample subset of image.  Co-opt igen.ResampleCraters to remove all
     # craters beyond cdim (either sub or source).
@@ -178,11 +215,11 @@ def get_random_crop_list(n, rawlen_range, img_size):
         box_list.append(box)
     return box_list
 
-def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead): 
+def create_cropped_image_set(img, sub_cdim, R_km, box_list, craters, outhead, compression): 
     start_time = time.time()
-    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim)    
+    GenDataset(box_list, img, craters, outhead, R_km, sub_cdim, compression)    
     elapsed_time = time.time() - start_time
-    print("Time elapsed: {0:.1f} min".format(elapsed_time / 60.))
+    print("Time elapsed: {0:.1f} sec".format(elapsed_time))
     
 def create_crop_files_coordinated(box_list, sub_cdim, img):    
     sys.path.append('../../DeepMoon/')
@@ -207,6 +244,27 @@ def create_crop_files_coordinated(box_list, sub_cdim, img):
     return df
 
 
+def ReadRobbinsCraterCSV(filename="../../data/catalogues/RobbinsLunarCraters.csv", sortlat=True):
+    """Reads Robbins 2018 <1 km and >1 km diameter crater catalogue.
 
+    Parameters
+    ----------
+    filename : str, optional
+        Filepath and name of the catalog csv file.  Defaults to the one in
+        the current folder.
+    sortlat : bool, optional
+        If `True` (default), order catalogue by latitude.
 
+    Returns
+    -------
+    craters : pandas.DataFrame
+        Craters data frame.
+    """
+    craters = pd.read_csv(filename, header=0,
+                          names=['Lat', 'Long', 'Diameter (km)'])[['Long', 'Lat', 'Diameter (km)']]
+    if sortlat:
+        craters.sort_values(by='Lat', inplace=True)
+        craters.reset_index(inplace=True, drop=True)
+
+    return craters
     

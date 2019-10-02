@@ -1,0 +1,74 @@
+# log of create_compare.py: 
+
+mages size is (4608, 3072)
+../../data/model_input_images/test1_SLDEM120_108_126_12_24
+generating 384 images for win_size 256 and overlap_size 64
+Time elapsed: 73.4 sec
+generating 96 images for win_size 512 and overlap_size 128
+Time elapsed: 18.4 sec
+generating 24 images for win_size 1024 and overlap_size 256
+Time elapsed: 4.6 sec
+generating 6 images for win_size 2048 and overlap_size 512
+Time elapsed: 1.2 sec
+Scoring ...
+../../data/model_input_images/test1_SLDEM120_108_126_12_24/ws_1024_ol_256
+Time elapsed 43.27 sec
+../../data/model_input_images/test1_SLDEM120_108_126_12_24/ws_2048_ol_512
+Time elapsed 12.02 sec
+../../data/model_input_images/test1_SLDEM120_108_126_12_24/ws_512_ol_128
+Time elapsed 169.23 sec
+../../data/model_input_images/test1_SLDEM120_108_126_12_24/ws_256_ol_64
+Time elapsed 672.70 sec
+
+
+images size is (9216, 6144)
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24
+generating 1536 images for win_size 256 and overlap_size 64
+Time elapsed: 288.7 sec
+generating 384 images for win_size 512 and overlap_size 128
+Time elapsed: 72.7 sec
+generating 96 images for win_size 1024 and overlap_size 256
+Time elapsed: 19.3 sec
+generating 24 images for win_size 2048 and overlap_size 512
+Time elapsed: 4.6 sec
+generating 6 images for win_size 4096 and overlap_size 1024
+Time elapsed: 1.2 sec
+Scoring ...
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24/ws_1024_ol_256
+Time elapsed 61.18 sec
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24/ws_2048_ol_512
+Time elapsed 16.28 sec
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24/ws_512_ol_128
+Time elapsed 238.40 sec
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24/ws_256_ol_64
+Time elapsed 934.82 sec
+../../data/model_input_images/test1_SLDEM60_before_108_126_12_24/ws_4096_ol_1024
+Time elapsed 5.38 sec
+All proccess took 28.82 min.
+
+
+Producing set from SLDEM 60 m/pix map compressed to 8-bit after crop
+images size is (9216, 6144)
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24
+generating 1536 images for win_size 256 and overlap_size 64
+Time elapsed: 290.4 sec
+generating 384 images for win_size 512 and overlap_size 128
+Time elapsed: 77.5 sec
+generating 96 images for win_size 1024 and overlap_size 256
+Time elapsed: 20.3 sec
+generating 24 images for win_size 2048 and overlap_size 512
+Time elapsed: 5.6 sec
+generating 6 images for win_size 4096 and overlap_size 1024
+Time elapsed: 2.2 sec
+Scoring ...
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24/ws_1024_ol_256
+Time elapsed 60.90 sec
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24/ws_2048_ol_512
+Time elapsed 16.33 sec
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24/ws_512_ol_128
+Time elapsed 238.42 sec
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24/ws_256_ol_64
+Time elapsed 944.96 sec
+../../data/model_input_images/test1_SLDEM60_after_108_126_12_24/ws_4096_ol_1024
+Time elapsed 5.54 sec
+All proccess took 29.04 min.
