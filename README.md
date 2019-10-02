@@ -4,7 +4,7 @@ Crater Detection Tool, based on Convolutional Neural Network (CNN).
 ## Motivation
 The abundance of craters on the Moon (and other planetary bodies) strongly increase with decreasing crater size and we want to be able to detect them all. 
 
-![](global_craters_hist.png)
+![](cc_hist1.png)
 
 ## Target
 Develope a tool which recives a satellite image as an input, and returns a list of all craters within this image, including sizes and locations. It should detect craters of various scales, from several-pixels-size- to full-image-size- craters. 
